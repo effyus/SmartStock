@@ -193,6 +193,17 @@ app.get('/produtopedidos/:id', (req, res) => {
     });
 });
 
+app.get('/produtopedidos/pedido/:pedidoId', (req, res) => {
+    const pedidoId = req.params.pedidoId;
+    connection.query('SELECT * FROM ProdutoPedido WHERE PedidoID = ?', [pedidoId], (error, results) => {
+        if (error) {
+            console.error('Erro ao buscar ProdutoPedido:', error);
+            return res.status(500).json({ error: 'Erro ao buscar ProdutoPedido' });
+        }
+        res.json(results);
+    });
+});
+
 app.post('/produtopedidos', (req, res) => {
     const { pedidoID, produtoID, quantidade, precoUnitario } = req.body;
     connection.query('INSERT INTO ProdutoPedido (PedidoID, ProdutoID, Quantidade, PrecoUnitario) VALUES (?, ?, ?, ?)', [pedidoID, produtoID, quantidade, precoUnitario], (error, results) => {
@@ -202,11 +213,21 @@ app.post('/produtopedidos', (req, res) => {
 });
 
 app.put('/produtopedidos/:id', (req, res) => {
-    const { pedidoID, produtoID, quantidade, precoUnitario } = req.body;
-    connection.query('UPDATE ProdutoPedido SET PedidoID = ?, ProdutoID = ?, Quantidade = ?, PrecoUnitario = ? WHERE ProdutoPedidoID = ?', [pedidoID, produtoID, quantidade, precoUnitario, req.params.id], (error) => {
-        if (error) throw error;
-        res.sendStatus(200);
-    });
+    const { produtoID, quantidade, precoUnitario } = req.body;
+    const produtoPedidoID = req.params.id;
+
+    connection.query(
+        'UPDATE ProdutoPedido SET ProdutoID = ?, Quantidade = ?, PrecoUnitario = ? WHERE ProdutoPedidoID = ?',
+        [produtoID, quantidade, precoUnitario, produtoPedidoID],
+        (error) => {
+            if (error) {
+                console.error('Erro ao atualizar ProdutoPedido:', error);
+                res.sendStatus(500);
+            } else {
+                res.sendStatus(200);
+            }
+        }
+    );
 });
 
 app.delete('/produtopedidos/:id', (req, res) => {

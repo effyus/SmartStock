@@ -10,6 +10,22 @@
 </head>
 
 <body>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Editar Pedido</h2>
+            <form id="edit-pedido-form">
+                <input type="hidden" id="edit-pedido-id">
+                <label for="edit-cliente-id">Cliente ID:</label>
+                <input type="number" id="edit-cliente-id" required>
+                <label for="edit-status">Status:</label>
+                <input type="text" id="edit-status" required>
+                <h3>Itens do Pedido</h3>
+                <div id="edit-itens-container"></div>
+                <button type="submit">Salvar</button>
+            </form>
+        </div>
+    </div>
     <aside class="sidebar">
         <header class="sidebar-header">
             <img class="logo-img" src="../../assets/S..png" alt="logo">
@@ -68,6 +84,187 @@
             </a>
         </nav>
     </aside>
+    <main class="main">
+        <div class="main-content">
+            <div class="container">
+                <section id="form-section">
+                    <h2>Adicionar Pedido</h2>
+                    <form id="pedido-form">
+                        <input type="hidden" id="pedido-id">
+                        <label for="cliente-id">Cliente ID:</label>
+                        <input type="number" id="cliente-id" required>
+                        <label for="status">Status:</label>
+                        <input type="text" id="status" required>
+                        <button type="submit">Salvar</button>
+                    </form>
+                </section>
+                <section id="pedido-list">
+                    <h2>Lista de Pedidos</h2>
+                    <ul id="pedido-items"></ul>
+                </section>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('pedido-form');
+            const pedidoIdInput = document.getElementById('pedido-id');
+            const clienteIdInput = document.getElementById('cliente-id');
+            const statusInput = document.getElementById('status');
+            const pedidoList = document.getElementById('pedido-items');
+            const modal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-pedido-form');
+            const editPedidoIdInput = document.getElementById('edit-pedido-id');
+            const editClienteIdInput = document.getElementById('edit-cliente-id');
+            const editStatusInput = document.getElementById('edit-status');
+            const closeButton = document.querySelector('.close-button');
+
+            function loadPedidos() {
+                fetch('/pedidos')
+                    .then(response => response.json())
+                    .then(data => {
+                        pedidoList.innerHTML = '';
+                        data.forEach(pedido => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <strong>Pedido ${pedido.PedidoID}:</strong> Cliente ID: ${pedido.ClienteID}, Status: ${pedido.Status}
+                                <button onclick="openEditModal(${pedido.PedidoID})">Editar</button>
+                                <button onclick="deletePedido(${pedido.PedidoID})">Deletar</button>
+                                <button onclick="openAdicionarModal(${pedido.PedidoID}>Adicionar produtos ao pedido</button>)"
+                            `;
+                            pedidoList.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar pedidos:', error));
+            }
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                const id = pedidoIdInput.value;
+                const pedido = {
+                    clienteID: clienteIdInput.value,
+                    status: statusInput.value
+                };
+                const url = id ? `/pedidos/${id}` : '/pedidos';
+                const method = id ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedido)
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        loadPedidos();
+                        form.reset();
+                    })
+                    .catch(error => console.error('Erro ao salvar pedido:', error));
+            });
+
+            window.openEditModal = id => {
+                fetch(`/pedidos/${id}`)
+                    .then(response => response.json())
+                    .then(pedido => {
+                        editPedidoIdInput.value = pedido.PedidoID;
+                        editClienteIdInput.value = pedido.ClienteID;
+                        editStatusInput.value = pedido.Status;
+
+                        // Limpa o container de itens antes de adicionar novos
+                        const itensContainer = document.getElementById('edit-itens-container');
+                        itensContainer.innerHTML = '';
+
+                        // Busca os itens do pedido
+                        fetch(`/produtopedidos/pedido/${id}`)
+                            .then(response => response.json())
+                            .then(itens => {
+                                itens.forEach(item => {
+                                    const itemDiv = document.createElement('div');
+                                    itemDiv.classList.add('item-edit');
+                                    itemDiv.innerHTML = `
+                                        <label for="edit-produto-id-${item.ProdutoPedidoID}">Produto ID:</label>
+                                        <input type="number" id="edit-produto-id-${item.ProdutoPedidoID}" value="${item.ProdutoID}" readonly>
+                                        <label for="edit-quantidade-${item.ProdutoPedidoID}">Quantidade:</label>
+                                        <input type="number" id="edit-quantidade-${item.ProdutoPedidoID}" value="${item.Quantidade}" required>
+                                        <label for="edit-preco-unitario-${item.ProdutoPedidoID}">Preço Unitário:</label>
+                                        <input type="text" id="edit-preco-unitario-${item.ProdutoPedidoID}" value="${item.PrecoUnitario}" readonly>
+                                    `;
+                                    itensContainer.appendChild(itemDiv);
+                                });
+                            })
+                            .catch(error => console.error('Erro ao carregar itens do pedido:', error));
+
+                        modal.style.display = 'block';
+                    })
+                    .catch(error => console.error('Erro ao carregar pedido:', error));
+            };
+
+            editForm.addEventListener('submit', event => {
+                event.preventDefault();
+                const id = editPedidoIdInput.value;
+                const pedido = {
+                    clienteID: editClienteIdInput.value,
+                    status: editStatusInput.value
+                };
+
+                // Atualiza os dados do pedido
+                fetch(`/pedidos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedido)
+                })
+                .then(() => {
+                    // Atualiza os itens do pedido
+                    const itens = Array.from(document.querySelectorAll('.item-edit')).map(item => {
+                        const produtoID = item.querySelector('input[id^="edit-produto-id-"]').value;
+                        const quantidade = item.querySelector('input[id^="edit-quantidade-"]').value;
+                        const precoUnitario = item.querySelector('input[id^="edit-preco-unitario-"]').value;
+                        const produtoPedidoID = item.querySelector('input[id^="edit-produto-id-"]').id.split('-').pop();
+                        return {
+                            produtoPedidoID,
+                            produtoID,
+                            quantidade,
+                            precoUnitario
+                        };
+                    });
+
+                    const promises = itens.map(item => {
+                        return fetch(`/produtopedidos/${item.produtoPedidoID}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(item)
+                        });
+                    });
+
+                    // Aguarda todas as atualizações dos itens serem concluídas
+                    Promise.all(promises)
+                        .then(() => {
+                            loadPedidos();
+                            modal.style.display = 'none';
+                        })
+                        .catch(error => console.error('Erro ao salvar itens do pedido:', error));
+                })
+                .catch(error => console.error('Erro ao salvar pedido:', error));
+            });
+
+            window.deletePedido = id => {
+                fetch(`/pedidos/${id}`, { method: 'DELETE' })
+                    .then(() => loadPedidos())
+                    .catch(error => console.error('Erro ao deletar pedido:', error));
+            };
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.onclick = event => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+
+            loadPedidos();
+        });
+    </script>
 </body>
 
 </html>

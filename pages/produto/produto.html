@@ -10,6 +10,22 @@
 </head>
 
 <body>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Editar Produto</h2>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-product-id">
+                <label for="edit-name">Nome:</label>
+                <input type="text" id="edit-name" required>
+                <label for="edit-price">Preço:</label>
+                <input type="number" id="edit-price" step="0.01" required>
+                <label for="edit-stock">Estoque:</label>
+                <input type="number" id="edit-stock" required>
+                <button type="submit">Salvar</button>
+            </form>
+        </div>
+    </div>
     <aside class="sidebar">
         <header class="sidebar-header">
             <img class="logo-img" src="../../assets/S..png" alt="logo">
@@ -68,6 +84,140 @@
             </a>
         </nav>
     </aside>
+    <main class="main">
+        <div class="main-content">
+            <div class="container">
+                <section id="form-section">
+                    <h2>Adicionar Produto</h2>
+                    <form id="product-form">
+                        <input type="hidden" id="product-id">
+                        <label for="name">Nome:</label>
+                        <input type="text" id="name" required>
+                        <label for="price">Preço:</label>
+                        <input type="number" id="price" step="0.01" required>
+                        <label for="stock">Estoque:</label>
+                        <input type="number" id="stock" required>
+                        <button type="submit">Salvar</button>
+                    </form>
+                </section>
+                <section id="product-list">
+                    <h2>Lista de Produtos</h2>
+                    <ul id="product-items"></ul>
+                </section>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('product-form');
+            const productIdInput = document.getElementById('product-id');
+            const nameInput = document.getElementById('name');
+            const priceInput = document.getElementById('price');
+            const stockInput = document.getElementById('stock');
+            const productList = document.getElementById('product-items');
+            const modal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-product-form');
+            const editProductIdInput = document.getElementById('edit-product-id');
+            const editNameInput = document.getElementById('edit-name');
+            const editPriceInput = document.getElementById('edit-price');
+            const editStockInput = document.getElementById('edit-stock');
+            const closeButton = document.querySelector('.close-button');
+
+            function loadProducts() {
+                fetch('/produtos')
+                    .then(response => response.json())
+                    .then(data => {
+                        productList.innerHTML = '';
+                        data.forEach(product => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                                <strong>${product.Nome}</strong> (R$ ${product.Preco}, ${product.Estoque} em estoque)
+                                <button onclick="openEditModal(${product.ProdutoID})">Editar</button>
+                                <button onclick="deleteProduct(${product.ProdutoID})">Deletar</button>
+                            `;
+                            productList.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar produtos:', error));
+            }
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                const id = productIdInput.value;
+                const product = {
+                    nome: nameInput.value,
+                    preco: parseFloat(priceInput.value),
+                    estoque: parseInt(stockInput.value)
+                };
+                const url = id ? `/produtos/${id}` : '/produtos';
+                const method = id ? 'PUT' : 'POST';
+
+                fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        loadProducts();
+                        form.reset();
+                    })
+                    .catch(error => console.error('Erro ao salvar produto:', error));
+            });
+
+            window.openEditModal = id => {
+                fetch(`/produtos/${id}`)
+                    .then(response => response.json())
+                    .then(product => {
+                        editProductIdInput.value = product.ProdutoID;
+                        editNameInput.value = product.Nome;
+                        editPriceInput.value = product.Preco;
+                        editStockInput.value = product.Estoque;
+                        modal.style.display = 'block';
+                    })
+                    .catch(error => console.error('Erro ao carregar produto:', error));
+            };
+
+            editForm.addEventListener('submit', event => {
+                event.preventDefault();
+                const id = editProductIdInput.value;
+                const product = {
+                    nome: editNameInput.value,
+                    preco: parseFloat(editPriceInput.value),
+                    estoque: parseInt(editStockInput.value)
+                };
+
+                fetch(`/produtos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                })
+                    .then(() => {
+                        loadProducts();
+                        modal.style.display = 'none';
+                    })
+                    .catch(error => console.error('Erro ao salvar produto:', error));
+            });
+
+            window.deleteProduct = id => {
+                fetch(`/produtos/${id}`, { method: 'DELETE' })
+                    .then(() => loadProducts())
+                    .catch(error => console.error('Erro ao deletar produto:', error));
+            };
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.onclick = event => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+
+            loadProducts();
+        });
+    </script>
 </body>
 
 </html>
