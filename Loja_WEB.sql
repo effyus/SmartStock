@@ -15,8 +15,7 @@ CREATE TABLE Cliente (
 CREATE TABLE Produto (
     ProdutoID INT AUTO_INCREMENT PRIMARY KEY,
     Nome VARCHAR(100) NOT NULL,
-    Preco DECIMAL(10, 2) NOT NULL,
-    Estoque INT NOT NULL
+    Preco DECIMAL(10, 2) NOT NULL
 );
 
 CREATE TABLE Pedido (
@@ -33,7 +32,8 @@ CREATE TABLE ProdutoPedido (
     ProdutoID INT,
     Quantidade INT NOT NULL,
     PrecoUnitario DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (PedidoID) REFERENCES Pedido(PedidoID),
+    FOREIGN KEY (PedidoID) REFERENCES Pedido(PedidoID)
+        ON DELETE CASCADE,
     FOREIGN KEY (ProdutoID) REFERENCES Produto(ProdutoID)
 );
 
@@ -41,10 +41,10 @@ INSERT INTO Cliente (Nome, Email, Telefone, Endereco) VALUES
 ('João Silva', 'joao@gmail.com', '123456789', 'Rua A, 123'),
 ('Maria Souza', 'maria@gmail.com', '987654321', 'Rua B, 456');
 
-INSERT INTO Produto (Nome, Preco, Estoque) VALUES
-('Produto A', 10.00, 100),
-('Produto B', 20.00, 50),
-('Produto C', 30.00, 200);
+INSERT INTO Produto (Nome, Preco) VALUES
+('Produto A', 10.00),
+('Produto B', 20.00),
+('Produto C', 30.00);
 
 INSERT INTO Pedido (ClienteID, Status) VALUES
 (1, 'Pendente'),
