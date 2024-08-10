@@ -34,6 +34,13 @@ function inserirProdutosPedido(pedidoID, produtosPedido) {
     })
 }
 
+function produtoFazParteDeAlgumPedido(produtoID) {
+    return connection.query('SELECT * FROM ProdutoPedido WHERE ProdutoID = ?', [produtoID], (error, results) => {
+        if (error) throw error;
+        return results.length > 0;
+    })
+}
+
 connection.connect((err) => {
     if (err) {
         console.error('Erro ao conectar ao banco de dados:', err);
@@ -129,6 +136,10 @@ app.put('/produtos/:id', (req, res) => {
 });
 
 app.delete('/produtos/:id', (req, res) => {
+    if (produtoFazParteDeAlgumPedido(req.params.id)) {
+        return res.status(400).json({ error: 'Produto não pode ser apagado pois faz parte de algum pedido' });
+    }
+
     connection.query('DELETE FROM Produto WHERE ProdutoID = ?', [req.params.id], (error) => {
         if (error) throw error;
         res.sendStatus(200);
