@@ -9,9 +9,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'aws.gviana.tech',
     user: 'root',
-    password: '123',
+    password: 'zC1t401JNZd4',
     database: 'Loja'
 });
 
@@ -31,13 +31,6 @@ function inserirProdutosPedido(pedidoID, produtosPedido) {
                 }
             })
         }
-    })
-}
-
-function produtoFazParteDeAlgumPedido(produtoID) {
-    return connection.query('SELECT * FROM ProdutoPedido WHERE ProdutoID = ?', [produtoID], (error, results) => {
-        if (error) throw error;
-        return results.length > 0;
     })
 }
 
@@ -136,14 +129,17 @@ app.put('/produtos/:id', (req, res) => {
 });
 
 app.delete('/produtos/:id', (req, res) => {
-    if (produtoFazParteDeAlgumPedido(req.params.id)) {
-        return res.status(400).json({ error: 'Produto não pode ser apagado pois faz parte de algum pedido' });
-    }
-
-    connection.query('DELETE FROM Produto WHERE ProdutoID = ?', [req.params.id], (error) => {
+    connection.query('SELECT * FROM ProdutoPedido WHERE ProdutoID = ?', [req.params.id], (error, results) => {
         if (error) throw error;
-        res.sendStatus(200);
-    });
+        if (results.length > 0) {
+            return res.status(400).json({ error: 'Produto não pode ser apagado pois faz parte de algum pedido' });
+        } else {
+            connection.query('DELETE FROM Produto WHERE ProdutoID = ?', [req.params.id], (error) => {
+                if (error) throw error;
+                res.sendStatus(200);
+            });
+        }
+    })
 });
 
 app.get('/total/produtos', (req, res) => {
