@@ -91,11 +91,11 @@
                     <h2>Adicionar Produto</h2>
                     <form id="product-form">
                         <input type="hidden" id="product-id">
-                        <label for="name">Nome:</label>
+                        <label for="name">Nome</label>
                         <input type="text" id="name" required>
-                        <label for="price">Preço:</label>
+                        <label for="price">Preço</label>
                         <input type="number" id="price" step="0.01" required>
-                        <label for="stock">Estoque:</label>
+                        <label for="stock">Estoque</label>
                         <input type="number" id="stock" required>
                         <button type="submit">Salvar</button>
                     </form>
@@ -132,8 +132,8 @@
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
                                 <strong>${product.Nome}</strong> (R$ ${product.Preco}, ${product.Estoque} em estoque)
-                                <button onclick="openEditModal(${product.ProdutoID})">Editar</button>
-                                <button onclick="deleteProduct(${product.ProdutoID})">Deletar</button>
+                                <button onclick="openEditModal(${product.ProdutoID})" class="botao-lista" >Editar</button>
+                                <button onclick="deleteProduct(${product.ProdutoID})" class="botao-lista" >Deletar</button>
                             `;
                             productList.appendChild(listItem);
                         });

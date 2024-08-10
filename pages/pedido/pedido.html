@@ -103,17 +103,17 @@
                         </select>     
                         <button type="submit">Salvar</button>    
                         <div>
-                            <h4>Adicionar produto</h4>
+                            <h3>Adicionar produto</h3>
                             <label for="produto-id">Produto:</label>
                             <select id="produto-id">
                                 <option value="" disabled selected>Selecione um produto</option>
                             </select>                        
                             <label for="quantidade">Quantidade:</label>
-                            <input type="number" id="quantidade">
+                            <input type="number" id="quantidade-input">
                             <button type="button" onclick="adicionarProduto()">Adicionar</button>
                         </div>
                         <div>
-                            <h4>Produtos</h4>
+                            <h3>Produtos</h3>
                             <ul id="produtos-pedido"></ul>
                         </div>
                     </form>
@@ -152,8 +152,8 @@
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
                                 <strong>Pedido ${pedido.PedidoID}:</strong> Cliente ID: ${pedido.ClienteID}, Status: ${pedido.Status}
-                                <button onclick="openEditModal(${pedido.PedidoID}) ${pedido.Status === 'Concluído' ? "disabled" : ""}">Editar</button>
-                                <button onclick="deletePedido(${pedido.PedidoID})">Deletar</button>
+                                <button onclick="openEditModal(${pedido.PedidoID})" class="botao-lista">Editar</button>
+                                <button onclick="deletePedido(${pedido.PedidoID})" class="botao-lista">Deletar</button>
                                 <button onclick="openAdicionarModal(${pedido.PedidoID}>Adicionar produtos ao pedido</button>)"
                             `;
                             pedidoList.appendChild(listItem);

@@ -131,6 +131,69 @@ a{
     text-decoration: none;
     cursor: pointer;
 }
+.main-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    width: calc(100% - 20px); /* Garante que a largura seja 100% menos o padding */
+    max-width: 1200px;
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+}
+#form-section h2{
+    margin-top: 15px;
+}
+label {
+    margin-bottom: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+#status, #cliente-id{
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#produto-id, #quantidade-input{
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+}
+#quantidade-text {
+    margin-left: 2px;
+    align-items: center;
+}
+
+#form-section button, .botao-lista {
+    margin-top: 20px;
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#form-section button:hover {
+    background-color: #333;
+}
+
 @media(width < 620px) {
     .sidebar {
         width: 72px;
@@ -144,4 +207,10 @@ a{
         opacity: 0;
         visibility: hidden;
     }
+    .main {
+        transition: margin 0.4s;
+        margin-left: 78px;
+        width: calc(100% - 78px);
+    }
+    
 }

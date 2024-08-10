@@ -98,6 +98,34 @@ a{
     padding: 20px;
     box-sizing: border-box;
 }
+
+.suporte {
+    background-color: #F5F5F7;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 40px); /* Garante que a largura seja 100% menos o padding */
+    max-width: 1200px;
+    margin: 20px auto; /* Centraliza horizontalmente */
+}
+
+.suporte> h3 {
+    font-size: 25px;
+    text-align: center;
+}
+p{
+    text-align: center;
+    margin-top: 20px;
+}
+.imagem-github {
+    text-align: center; 
+}
+ 
+ .imagem-github img {
+    width: 130px;
+    display: block; 
+    margin: 0 auto; 
+ }
+
 @media(width < 620px) {
     .sidebar {
         width: 72px;
@@ -110,5 +138,10 @@ a{
     .sidebar button>span>span {
         opacity: 0;
         visibility: hidden;
+    }
+    .main {
+        transition: margin 0.4s;
+        margin-left: 78px;
+        width: calc(100% - 78px);
     }
 }

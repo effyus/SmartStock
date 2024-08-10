@@ -73,16 +73,17 @@
                     </span>
                 </button>
             </a>
-            <a href="../../pages/suporte/suporte.html"></a>
-            <button>
-                <span>
-                    <i class="menu-icon">
-                        <img src="../../assets/menu/codigo-do-laptop 1.png" alt="Suporte">
-                    </i>
-                    <span>SUPORTE</span>
-                </span>
+            <a href="../../pages/suporte/suporte.html">
+                <button>
+                    <span>
+
+                        <i class="menu-icon">
+                            <img src="../../assets/menu/codigo-do-laptop 1.png" alt="Suporte">
+                        </i>
+                        <span>SUPORTE</span>
+                    </span>
+                </button>
             </a>
-            </button>
         </nav>
     </aside>
     <main class="main">
@@ -92,19 +93,19 @@
                     <h2>Adicionar Cliente</h2>
                     <form id="client-form">
                         <input type="hidden" id="client-id">
-                        <label for="name">Nome:</label>
+                        <label for="name">Nome</label>
                         <input type="text" id="name" required>
-                        <label for="email">Email:</label>
+                        <label for="email">Email</label>
                         <input type="email" id="email" required>
-                        <label for="phone">Telefone:</label>
+                        <label for="phone">Telefone</label>
                         <input type="tel" id="phone" required>
-                        <label for="address">Endereço:</label>
+                        <label for="address">Endereço</label>
                         <input type="text" id="address" required>
                         <button type="submit">Salvar</button>
                     </form>
                 </section>
                 <section id="client-list">
-                    <h2>Lista de Clientes</h2>
+                    <h3>Lista de Clientes</h3>
                     <ul id="client-items"></ul>
                 </section>
             </div>
@@ -137,8 +138,8 @@
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
                                 <strong>${client.Nome}</strong> (${client.Email}, ${client.Telefone}, ${client.Endereco})
-                                <button onclick="openEditModal(${client.ClienteID})">Editar</button>
-                                <button onclick="deleteClient(${client.ClienteID})">Deletar</button>
+                                <button onclick="openEditModal(${client.ClienteID})" class="botao-lista">Editar</button>
+                                <button onclick="deleteClient(${client.ClienteID})" class="botao-lista">Deletar</button>
                             `;
                             clientList.appendChild(listItem);
                         });
