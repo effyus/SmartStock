@@ -9,9 +9,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'aws.gviana.tech',
     user: 'root',
-    password: '123',
+    password: 'zC1t401JNZd4',
     database: 'Loja'
 });
 
@@ -113,16 +113,16 @@ app.get('/produtos/:id', (req, res) => {
 });
 
 app.post('/produtos', (req, res) => {
-    const { nome, preco, estoque } = req.body;
-    connection.query('INSERT INTO Produto (Nome, Preco, Estoque) VALUES (?, ?, ?)', [nome, preco, estoque], (error, results) => {
+    const { nome, preco } = req.body;
+    connection.query('INSERT INTO Produto (Nome, Preco) VALUES (?, ?)', [nome, preco], (error, results) => {
         if (error) throw error;
         res.json({ id: results.insertId });
     });
 });
 
 app.put('/produtos/:id', (req, res) => {
-    const { nome, preco, estoque } = req.body;
-    connection.query('UPDATE Produto SET Nome = ?, Preco = ?, Estoque = ? WHERE ProdutoID = ?', [nome, preco, estoque, req.params.id], (error) => {
+    const { nome, preco } = req.body;
+    connection.query('UPDATE Produto SET Nome = ?, Preco = ? WHERE ProdutoID = ?', [nome, preco, req.params.id], (error) => {
         if (error) throw error;
         res.sendStatus(200);
     });

@@ -20,8 +20,6 @@
                 <input type="text" id="edit-name" required>
                 <label for="edit-price">Preço:</label>
                 <input type="number" id="edit-price" step="0.01" required>
-                <label for="edit-stock">Estoque:</label>
-                <input type="number" id="edit-stock" required>
                 <button type="submit">Salvar</button>
             </form>
         </div>
@@ -95,8 +93,6 @@
                         <input type="text" id="name" required>
                         <label for="price">Preço</label>
                         <input type="number" id="price" step="0.01" required>
-                        <label for="stock">Estoque</label>
-                        <input type="number" id="stock" required>
                         <button type="submit">Salvar</button>
                     </form>
                 </section>
@@ -113,14 +109,12 @@
             const productIdInput = document.getElementById('product-id');
             const nameInput = document.getElementById('name');
             const priceInput = document.getElementById('price');
-            const stockInput = document.getElementById('stock');
             const productList = document.getElementById('product-items');
             const modal = document.getElementById('edit-modal');
             const editForm = document.getElementById('edit-product-form');
             const editProductIdInput = document.getElementById('edit-product-id');
             const editNameInput = document.getElementById('edit-name');
             const editPriceInput = document.getElementById('edit-price');
-            const editStockInput = document.getElementById('edit-stock');
             const closeButton = document.querySelector('.close-button');
 
             function loadProducts() {
@@ -131,7 +125,7 @@
                         data.forEach(product => {
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
-                                <strong>${product.Nome}</strong> (R$ ${product.Preco}, ${product.Estoque} em estoque)
+                                <strong>${product.Nome}</strong> (R$ ${product.Preco})
                                 <button onclick="openEditModal(${product.ProdutoID})" class="botao-lista" >Editar</button>
                                 <button onclick="deleteProduct(${product.ProdutoID})" class="botao-lista" >Deletar</button>
                             `;
@@ -146,8 +140,7 @@
                 const id = productIdInput.value;
                 const product = {
                     nome: nameInput.value,
-                    preco: parseFloat(priceInput.value),
-                    estoque: parseInt(stockInput.value)
+                    preco: parseFloat(priceInput.value)
                 };
                 const url = id ? `/produtos/${id}` : '/produtos';
                 const method = id ? 'PUT' : 'POST';
@@ -172,7 +165,6 @@
                         editProductIdInput.value = product.ProdutoID;
                         editNameInput.value = product.Nome;
                         editPriceInput.value = product.Preco;
-                        editStockInput.value = product.Estoque;
                         modal.style.display = 'block';
                     })
                     .catch(error => console.error('Erro ao carregar produto:', error));
@@ -183,8 +175,7 @@
                 const id = editProductIdInput.value;
                 const product = {
                     nome: editNameInput.value,
-                    preco: parseFloat(editPriceInput.value),
-                    estoque: parseInt(editStockInput.value)
+                    preco: parseFloat(editPriceInput.value)
                 };
 
                 fetch(`/produtos/${id}`, {
