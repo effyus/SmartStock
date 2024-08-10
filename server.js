@@ -79,10 +79,17 @@ app.put('/clientes/:id', (req, res) => {
 });
 
 app.delete('/clientes/:id', (req, res) => {
-    connection.query('DELETE FROM Cliente WHERE ClienteID = ?', [req.params.id], (error) => {
+    connection.query('SELECT * FROM Pedido WHERE ClienteID = ?', [req.params.id], (error, results) => {
         if (error) throw error;
-        res.sendStatus(200);
-    });
+        if (results.length > 0) {
+            return res.status(400).json({ error: 'Cliente não pode ser apagado pois faz parte de algum pedido' });
+        } else {
+            connection.query('DELETE FROM Cliente WHERE ClienteID = ?', [req.params.id], (error) => {
+                if (error) throw error;
+                res.sendStatus(200);
+            });
+        }
+    })
 });
 
 app.get('/total/clientes', (req, res) => {

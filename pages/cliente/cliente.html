@@ -210,8 +210,10 @@
 
             window.deleteClient = id => {
                 fetch(`/clientes/${id}`, { method: 'DELETE' })
-                    .then(() => loadClients())
-                    .catch(error => console.error('Erro ao deletar cliente:', error));
+                .then((r) => r.json()).then((r) => {
+                        if (r.error)
+                            alert(r.error);
+                }).catch(error => console.error('Erro ao deletar produto:', error)).finally(() => loadClients());
             };
 
             closeButton.addEventListener('click', () => {
