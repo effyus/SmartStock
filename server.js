@@ -129,10 +129,17 @@ app.put('/produtos/:id', (req, res) => {
 });
 
 app.delete('/produtos/:id', (req, res) => {
-    connection.query('DELETE FROM Produto WHERE ProdutoID = ?', [req.params.id], (error) => {
+    connection.query('SELECT * FROM ProdutoPedido WHERE ProdutoID = ?', [req.params.id], (error, results) => {
         if (error) throw error;
-        res.sendStatus(200);
-    });
+        if (results.length > 0) {
+            return res.status(400).json({ error: 'Produto não pode ser apagado pois faz parte de algum pedido' });
+        } else {
+            connection.query('DELETE FROM Produto WHERE ProdutoID = ?', [req.params.id], (error) => {
+                if (error) throw error;
+                res.sendStatus(200);
+            });
+        }
+    })
 });
 
 app.get('/total/produtos', (req, res) => {

@@ -192,8 +192,10 @@
 
             window.deleteProduct = id => {
                 fetch(`/produtos/${id}`, { method: 'DELETE' })
-                    .then(() => loadProducts())
-                    .catch(error => console.error('Erro ao deletar produto:', error));
+                    .then((r) => r.json()).then((r) => {
+                        if (r.error)
+                            alert(r.error);
+                }).catch(error => console.error('Erro ao deletar produto:', error)).finally(() => loadProducts());
             };
 
             closeButton.addEventListener('click', () => {

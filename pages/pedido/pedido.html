@@ -108,7 +108,7 @@
                             <select id="produto-id">
                                 <option value="" disabled selected>Selecione um produto</option>
                             </select>                        
-                            <label for="quantidade">Quantidade:</label>
+                            <label for="quantidade-input">Quantidade:</label>
                             <input type="number" id="quantidade-input">
                             <button type="button" onclick="adicionarProduto()">Adicionar</button>
                         </div>
@@ -139,7 +139,7 @@
             const editStatusInput = document.getElementById('edit-status');
             const closeButton = document.querySelector('.close-button');
             const produtoIdSelect = document.getElementById('produto-id');
-            const quantidadeInput = document.getElementById('quantidade');
+            const quantidadeInput = document.getElementById('quantidade-input');
             const produtosPedido = document.getElementById('produtos-pedido');        
             const produtosAdicionados = [];
 
