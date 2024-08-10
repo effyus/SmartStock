@@ -15,6 +15,25 @@ const connection = mysql.createConnection({
     database: 'Loja'
 });
 
+function inserirProdutosPedido(pedidoID, produtosPedido) {
+    const idProdutos = produtosPedido.map((produto) => produto.produtoID);
+
+    connection.query('SELECT * FROM Produto WHERE ProdutoID IN (?)', [idProdutos], (error, results) => {
+        if (error) throw error;
+
+        for (let i = 0; i < produtosPedido.length; i++) {
+            const produto = results.find((produto) => produto.ProdutoID === produtosPedido[i].produtoID);
+            const produtoPedido = produtosPedido[i];
+
+            connection.query('INSERT INTO ProdutoPedido (PedidoID, ProdutoID, Quantidade, PrecoUnitario) VALUES (?, ?, ?, ?)', [pedidoID, produtoPedido.produtoID, produtoPedido.quantidade, produto.Preco], (error) => {
+                if (error) {
+                    console.error('Erro ao inserir ProdutoPedido:', error);
+                }
+            })
+        }
+    })
+}
+
 connection.connect((err) => {
     if (err) {
         console.error('Erro ao conectar ao banco de dados:', err);
@@ -144,9 +163,10 @@ app.get('/pedidos/:id', (req, res) => {
 });
 
 app.post('/pedidos', (req, res) => {
-    const { clienteID, status } = req.body;
-    connection.query('INSERT INTO Pedido (ClienteID, Status) VALUES (?, ?)', [clienteID, status], (error, results) => {
+    const { clienteID, status, produtos } = req.body;
+    connection.query('INSERT INTO Pedido (ClienteID, Status) VALUES (?, ?)', [clienteID, status], async (error, results) => {
         if (error) throw error;
+        inserirProdutosPedido(results.insertId, produtos);
         res.json({ id: results.insertId });
     });
 });

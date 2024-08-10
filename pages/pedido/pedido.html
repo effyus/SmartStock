@@ -91,11 +91,31 @@
                     <h2>Adicionar Pedido</h2>
                     <form id="pedido-form">
                         <input type="hidden" id="pedido-id">
-                        <label for="cliente-id">Cliente ID:</label>
-                        <input type="number" id="cliente-id" required>
+                        <label for="cliente-id">Cliente:</label>
+                        <select id="cliente-id" required>
+                            <option value="" disabled selected>Selecione um cliente</option>
+                        </select>                        
                         <label for="status">Status:</label>
-                        <input type="text" id="status" required>
-                        <button type="submit">Salvar</button>
+                        <select id="status" required>
+                            <option value="" disabled selected>Selecione um status</option>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Concluído">Concluído</option>
+                        </select>     
+                        <button type="submit">Salvar</button>    
+                        <div>
+                            <h4>Adicionar produto</h4>
+                            <label for="produto-id">Produto:</label>
+                            <select id="produto-id">
+                                <option value="" disabled selected>Selecione um produto</option>
+                            </select>                        
+                            <label for="quantidade">Quantidade:</label>
+                            <input type="number" id="quantidade">
+                            <button type="button" onclick="adicionarProduto()">Adicionar</button>
+                        </div>
+                        <div>
+                            <h4>Produtos</h4>
+                            <ul id="produtos-pedido"></ul>
+                        </div>
                     </form>
                 </section>
                 <section id="pedido-list">
@@ -109,8 +129,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('pedido-form');
             const pedidoIdInput = document.getElementById('pedido-id');
-            const clienteIdInput = document.getElementById('cliente-id');
-            const statusInput = document.getElementById('status');
+            const clienteIdSelect = document.getElementById('cliente-id');
+            const statusSelect = document.getElementById('status');
             const pedidoList = document.getElementById('pedido-items');
             const modal = document.getElementById('edit-modal');
             const editForm = document.getElementById('edit-pedido-form');
@@ -118,6 +138,10 @@
             const editClienteIdInput = document.getElementById('edit-cliente-id');
             const editStatusInput = document.getElementById('edit-status');
             const closeButton = document.querySelector('.close-button');
+            const produtoIdSelect = document.getElementById('produto-id');
+            const quantidadeInput = document.getElementById('quantidade');
+            const produtosPedido = document.getElementById('produtos-pedido');        
+            const produtosAdicionados = [];
 
             function loadPedidos() {
                 fetch('/pedidos')
@@ -128,7 +152,7 @@
                             const listItem = document.createElement('li');
                             listItem.innerHTML = `
                                 <strong>Pedido ${pedido.PedidoID}:</strong> Cliente ID: ${pedido.ClienteID}, Status: ${pedido.Status}
-                                <button onclick="openEditModal(${pedido.PedidoID})">Editar</button>
+                                <button onclick="openEditModal(${pedido.PedidoID}) ${pedido.Status === 'Concluído' ? "disabled" : ""}">Editar</button>
                                 <button onclick="deletePedido(${pedido.PedidoID})">Deletar</button>
                                 <button onclick="openAdicionarModal(${pedido.PedidoID}>Adicionar produtos ao pedido</button>)"
                             `;
@@ -138,18 +162,50 @@
                     .catch(error => console.error('Erro ao carregar pedidos:', error));
             }
 
-            form.addEventListener('submit', event => {
-                event.preventDefault();
-                const id = pedidoIdInput.value;
-                const pedido = {
-                    clienteID: clienteIdInput.value,
-                    status: statusInput.value
-                };
-                const url = id ? `/pedidos/${id}` : '/pedidos';
-                const method = id ? 'PUT' : 'POST';
+            function loadClientes() {
+                fetch('/clientes')
+                    .then(response => response.json())
+                    .then(data => {                        
+                        data.forEach(cliente => {                            
+                            const option = document.createElement('option');
+                            option.setAttribute('value', cliente.ClienteID);
+                            option.innerHTML = `${cliente.ClienteID} - ${cliente.Nome}`;
+                            clienteIdSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar clientes:', error));
+            }
 
-                fetch(url, {
-                    method: method,
+            function loadProdutos() {
+                fetch('/produtos')
+                    .then(response => response.json())
+                    .then(data => {                        
+                        data.forEach(produto => {
+                            const option = document.createElement('option');
+                            option.setAttribute('value', produto.ProdutoID);
+                            option.innerHTML = `${produto.ProdutoID} - ${produto.Nome}`;
+                            produtoIdSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Erro ao carregar produtos:', error));
+            }
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();                
+
+                if (produtosAdicionados.length === 0) {
+                    alert('É obrigatório adicionar pelo menos um produto ao pedido');
+                    return;                                
+                }          
+                
+                const pedido = {
+                    clienteID: clienteIdSelect.value,
+                    status: statusSelect.value,
+                    produtos: produtosAdicionados
+                };
+
+                fetch('/pedidos', {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(pedido)
                 })
@@ -157,9 +213,49 @@
                     .then(() => {
                         loadPedidos();
                         form.reset();
+                        produtosPedido.innerHTML = '';
                     })
                     .catch(error => console.error('Erro ao salvar pedido:', error));
             });
+
+            window.adicionarProduto = () => {
+                const produtoID = Number(produtoIdSelect.value);
+                const quantidade = Number(quantidadeInput.value);
+                
+                if (produtoID && quantidade) {
+
+                    if (quantidade <= 0) {
+                        alert('A quantidade não pode ser negativa');
+                        return;
+                    }
+
+                    if (produtosAdicionados.some(produto => produto.produtoID === produtoID)) {
+                        alert('Esse produto já foi adicionado ao pedido');
+                        return;
+                    }
+
+                    produtosAdicionados.push({
+                        produtoID,
+                        quantidade
+                    });
+
+                    const produto = document.createElement('li');
+                    produto.innerHTML = `Produto ID: ${produtoID}, Quantidade: ${quantidade} <button type="button" onclick="removerProduto(${produtoID})">Remover</button>`;
+                    produtosPedido.appendChild(produto);
+
+                    produtoIdSelect.value = '';
+                    quantidadeInput.value = '';
+                } else {
+                    alert('É obrigatório selecionar um produto e informar a quantidade');
+                }                     
+            }
+
+            window.removerProduto = produtoID => {            
+                const index = produtosAdicionados.findIndex(produto => produto.produtoID === produtoID);
+                produtosAdicionados.splice(index, 1);
+                const produtosPedido = document.getElementById('produtos-pedido');
+                produtosPedido.removeChild(produtosPedido.childNodes[index]);                
+            }
 
             window.openEditModal = id => {
                 fetch(`/pedidos/${id}`)
@@ -263,6 +359,8 @@
             };
 
             loadPedidos();
+            loadClientes();
+            loadProdutos();
         });
     </script>
 </body>
