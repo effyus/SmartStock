@@ -9,9 +9,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 const connection = mysql.createConnection({
-    host: 'aws.gviana.tech',
+    host: 'localhost',
     user: 'root',
-    password: 'zC1t401JNZd4',
+    password: '123',
     database: 'Loja'
 });
 
